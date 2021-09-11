@@ -12,7 +12,9 @@ fun main(args: Array<String>) {
 
     val jda = JDABuilder.createDefault(token)
         .setActivity(Activity.watching("for your accidental haikus"))
+        .addEventListeners(HaikuMessageListener())
         .build()
+
 
     jda.awaitReady()
 }
