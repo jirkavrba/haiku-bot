@@ -1,22 +1,21 @@
-// TODO: Rewrite this in a nicer, functional style probably?
-// https://medium.com/@mholtzscher/programmatically-counting-syllables-ca760435fab4
+
+fun Char.isVowel(): Boolean = setOf('a', 'e', 'i', 'o', 'u', 'y').contains(this.lowercaseChar())
+
+// https://codereview.stackexchange.com/a/9974
 fun String.countSyllables(): Int {
-    var count = 0
-    val vowels = setOf('a', 'e', 'i', 'o', 'u', 'y')
-
     if (this.isBlank()) return 0
-    if (this.length <= 3) return 1
 
-    if (vowels.contains(this[0])) count++
+    val start = if (this[0].isVowel()) 1 else 0
+    val count = start + this.trim()
+        .lowercase()
+        .zipWithNext()
+        .count { (last, current) -> current.isVowel() && !last.isVowel() }
 
-    for ((last, current) in this.zipWithNext()) {
-        if (vowels.contains(current) && !vowels.contains(last)) count++
-    }
+    // List of suffixes that decrease the count by one
+    val suffixes = setOf("e", "es", "ed", "le")
 
-    if (this.endsWith('e')) count--
-    if (this.endsWith("le") && this.length > 2 && !vowels.contains(this[-3])) count++
-
-    return count.coerceAtMost(1)
+    return if (suffixes.any { this.endsWith(it) }) count - 1
+           else count
 }
 
 fun String.words(): List<String> = this.split("""\P{L}+""".toRegex())
